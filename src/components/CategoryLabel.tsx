@@ -2,12 +2,21 @@ import React from "react";
 import { Pressable, View, StyleSheet, Text } from "react-native";
 import { CategoryLabelProps } from "../constants/interfaces";
 
-const CategoryLabel = ({ name, ribbonColor }: CategoryProps) => {
+const CategoryLabel = ({
+  id,
+  name,
+  ribbonColor,
+  onCategoryLabelPress,
+}: CategoryLabelProps) => {
   return (
-    <Pressable style={styles.container}>
+    <Pressable
+      style={styles.labelContainer}
+      onPress={() => onCategoryLabelPress(name)}
+    >
       <View
         style={{
           width: 8,
+          marginLeft: -1,
           backgroundColor: ribbonColor,
         }}
       ></View>
@@ -17,22 +26,22 @@ const CategoryLabel = ({ name, ribbonColor }: CategoryProps) => {
 };
 
 const styles = StyleSheet.create({
-  container: {
-    flexDirection: "row",
-    backgroundColor: "#fff",
+  labelContainer: {
     height: 64,
+    flexDirection: "row",
+    alignSelf: "stretch",
+    marginHorizontal: 16,
+    marginVertical: 4,
+    backgroundColor: "#fff",
     borderColor: "#ced4da",
     borderRadius: 4,
     borderWidth: 2,
-    width: 256,
-    marginBottom: 8,
   },
   categoryTitle: {
-    color: "#000000",
+    color: "#000",
+    alignSelf: "center",
     fontSize: 16,
     fontWeight: "bold",
-    justifyContent: "center",
-    alignSelf: "center",
     marginLeft: 8,
   },
   ribbon: {
