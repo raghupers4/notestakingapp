@@ -12,30 +12,37 @@ const Categories = [
 
 const HomeScreen = ({ navigation }: HomeScreenProps) => {
   const onCategoryLabelPress = (name: string) => {
-    navigation.navigate("CategoryNotes");
+    // navigation.navigate("CategoryNotes", {
+    //   name,
+    // });
+    navigation.navigate("Notes");
   };
   return (
-    <ImageBackground
-      style={styles.bgImage}
-      source={require("../../assets/notesimg.jpg")}
-    >
-      <View style={styles.categories}>
-        {Categories.map((category, index) => (
-          <CategoryLabel
-            key={index}
-            {...category}
-            onCategoryLabelPress={onCategoryLabelPress}
-          />
-        ))}
-      </View>
-    </ImageBackground>
+    <View style={styles.container}>
+      <ImageBackground
+        style={styles.bgImage}
+        source={require("../../assets/notesimg.jpg")}
+      >
+        <View style={styles.categories}>
+          {Categories.map((category) => (
+            <CategoryLabel
+              key={category.id}
+              {...category}
+              onCategoryLabelPress={onCategoryLabelPress}
+            />
+          ))}
+        </View>
+      </ImageBackground>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
   bgImage: {
-    width: "100%",
-    height: "100%",
+    flex: 1,
   },
   categories: {
     flex: 1,

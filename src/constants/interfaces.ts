@@ -8,10 +8,22 @@ interface CategoryLabelProps {
 
 type RootStackParamList = {
   Home: undefined;
-  CategoryNotes: undefined;
+  CategoryNotes: { name: string };
+  Notes: undefined;
   // Profile: { userId: string };
   // Feed: { sort: "latest" | "top" } | undefined;
 };
 
 type HomeScreenProps = NativeStackScreenProps<RootStackParamList, "Home">;
-export { CategoryLabelProps, RootStackParamList, HomeScreenProps };
+type CategoryNotesScreenProps = NativeStackScreenProps<
+  RootStackParamList,
+  "CategoryNotes"
+>;
+type NotesScreenProps = NativeStackScreenProps<RootStackParamList, "Notes">;
+export {
+  CategoryLabelProps,
+  RootStackParamList,
+  HomeScreenProps,
+  CategoryNotesScreenProps,
+  NotesScreenProps,
+};
