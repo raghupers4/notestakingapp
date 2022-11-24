@@ -1,7 +1,7 @@
 import React from "react";
 import CategoryLabel from "../components/CategoryLabel";
 import { ImageBackground, Pressable, View, StyleSheet } from "react-native";
-import { HomeScreenProps } from "../constants/interfaces";
+import { HomeScreenProps, NotesCategory } from "../constants/types";
 
 const Categories = [
   { id: 1, name: "Personal", ribbonColor: "#3a86ff" },
@@ -11,11 +11,10 @@ const Categories = [
 ];
 
 const HomeScreen = ({ navigation }: HomeScreenProps) => {
-  const onCategoryLabelPress = (name: string) => {
-    // navigation.navigate("CategoryNotes", {
-    //   name,
-    // });
-    navigation.navigate("Notes");
+  const onCategoryLabelPress = (category: NotesCategory) => {
+    navigation.navigate("CategoryNotes", {
+      ...category,
+    });
   };
   return (
     <View style={styles.container}>
@@ -27,7 +26,7 @@ const HomeScreen = ({ navigation }: HomeScreenProps) => {
           {Categories.map((category) => (
             <CategoryLabel
               key={category.id}
-              {...category}
+              category={category}
               onCategoryLabelPress={onCategoryLabelPress}
             />
           ))}
