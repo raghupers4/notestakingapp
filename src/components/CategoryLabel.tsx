@@ -1,17 +1,16 @@
 import React from "react";
 import { Pressable, View, StyleSheet, Text } from "react-native";
-import { CategoryLabelProps } from "../constants/interfaces";
+import { CategoryLabelProps } from "../constants/types";
 
 const CategoryLabel = ({
-  id,
-  name,
-  ribbonColor,
+  category,
   onCategoryLabelPress,
 }: CategoryLabelProps) => {
+  const { id, name, ribbonColor } = category;
   return (
     <Pressable
       style={styles.labelContainer}
-      onPress={() => onCategoryLabelPress(name)}
+      onPress={() => onCategoryLabelPress(category)}
     >
       <View
         style={{
