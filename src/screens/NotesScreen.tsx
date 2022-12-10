@@ -1,6 +1,13 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { View, StyleSheet, Text, TextInput, PixelRatio } from "react-native";
-import constants from "../constants/constants";
+import {
+  View,
+  StyleSheet,
+  Text,
+  TextInput,
+  PixelRatio,
+  BackHandler,
+  Pressable,
+} from "react-native";
 import { NotesScreenProps } from "../constants/types";
 import { AntDesign, FontAwesome } from "@expo/vector-icons";
 import ViewShot, { captureRef } from "react-native-view-shot";
@@ -8,7 +15,6 @@ import { HeaderBackButton } from "@react-navigation/elements";
 import { useDispatch, useSelector } from "react-redux";
 import { addNotesToList, updateNotes } from "../reducers/CategoryNotesSlice";
 import { nanoid } from "nanoid";
-
 // Screen where users can add or edit the notes by providing title and notes
 export default function Notes({ navigation, route }: NotesScreenProps) {
   const [title, setTitle] = useState<string>("");
@@ -16,8 +22,11 @@ export default function Notes({ navigation, route }: NotesScreenProps) {
   const [notes, setNotes] = useState<string>("");
   const [isPinned, setIsPinned] = useState<boolean>(false);
   const [isNotesEdited, setIsNotesEdited] = useState<boolean>(false);
+  const [capturingScreenShot, setCapturingScreenShot] =
+    useState<boolean>(false);
+  const [contentsNotChanged, setContentsNotChanged] = useState<boolean>(false);
   const titleRef = useRef<TextInput>(null);
-  const viewShotRef = useRef<any>(null);
+  const viewShotRef = useRef<ViewShot>(null);
   const viewRef = useRef<View>(null);
   const dispatch = useDispatch();
   const targetPixelCount = 1080; // full HD pictures
@@ -32,7 +41,7 @@ export default function Notes({ navigation, route }: NotesScreenProps) {
   // dynamically setting navigation options like backbutton and headerRight buttons
   useEffect(() => {
     navigation.setOptions({
-      headerLeft: () => <HeaderBackButton onPress={handleViewShotCapture} />,
+      headerLeft: () => <HeaderBackButton onPress={backButtonOnPress} />,
       headerRight: () => {
         return (
           <View style={styles.headerRightButtons}>
@@ -51,7 +60,12 @@ export default function Notes({ navigation, route }: NotesScreenProps) {
         );
       },
     });
-  }, [navigation, isPinned, title, notes]);
+    // handling device back button
+    // works only for Android devices
+    BackHandler.addEventListener("hardwareBackPress", backAction);
+    return () =>
+      BackHandler.removeEventListener("hardwareBackPress", backAction);
+  }, [navigation, isPinned, title, notes, titleErrorMsg, contentsNotChanged]);
 
   useEffect(() => {
     if (
@@ -66,6 +80,30 @@ export default function Notes({ navigation, route }: NotesScreenProps) {
       setIsNotesEdited(true);
     }
   }, [route]);
+
+  const backAction = () => {
+    handleViewShotCapture();
+    return true;
+  };
+
+  // invoked when header back button is pressed
+  // TODO:: when existing notes is opened, viewshot captured pictured quality is not good
+  const backButtonOnPress = async () => {
+    if (isNotesEdited && route?.params?.notesDetails?.contents) {
+      const { title: prevTitle, notes: prevNotes } =
+        route.params.notesDetails.contents;
+      if (title === prevTitle) {
+        if (notes === prevNotes) {
+          // notes or title has not been changed when notes screen is opened for editing
+          // titleRef.current?.setNativeProps({
+          //   selection: { start: title.length - 1, end: title.length - 1 },
+          // });
+          // setContentsNotChanged(true);
+        }
+      }
+    }
+    await handleViewShotCapture();
+  };
 
   const onTitleChange = (txt: string) => {
     if (txt?.length > 16) {
@@ -84,10 +122,13 @@ export default function Notes({ navigation, route }: NotesScreenProps) {
     setIsPinned((isPin) => !isPin);
   };
 
-  // captures the screenshot on header back button click
-  const handleViewShotCapture = useCallback(async () => {
+  // captures the screenshot on header back button click or hardward back button (for Android)
+  const handleViewShotCapture = async () => {
     try {
-      if (viewShotRef.current) {
+      // capture the screenshot only if there are no validation errors
+      if (!titleErrorMsg && viewShotRef?.current) {
+        setCapturingScreenShot(true);
+        // viewShotRef.current.lastCapturedURI = "";
         const uri = await viewShotRef.current.capture();
         const details = {
           categoryId: route.params.categoryId,
@@ -98,7 +139,8 @@ export default function Notes({ navigation, route }: NotesScreenProps) {
             notes,
           },
         };
-        if (notes && title) {
+        setCapturingScreenShot(false);
+        if (notes || title) {
           if (isNotesEdited) {
             dispatch(
               updateNotes({
@@ -120,9 +162,9 @@ export default function Notes({ navigation, route }: NotesScreenProps) {
     } catch (error) {
       console.log("Error: " + error);
     }
-  }, [title, notes, isPinned, route]);
-
+  };
   // <ViewShot> component is used to take the screenshot of the screen
+  // without header buttons
   return (
     <ViewShot
       style={styles.viewShot}
@@ -136,10 +178,16 @@ export default function Notes({ navigation, route }: NotesScreenProps) {
       <View style={styles.container}>
         <TextInput
           ref={titleRef}
-          style={styles.title}
+          style={
+            capturingScreenShot
+              ? [styles.title, { fontSize: 24 }]
+              : styles.title
+          }
           value={title}
           placeholder="Title"
           onChangeText={onTitleChange}
+          underlineColorAndroid="transparent"
+          caretHidden={capturingScreenShot}
         />
         {titleErrorMsg ? (
           <Text style={styles.titleErrorMsg}>{titleErrorMsg}</Text>
@@ -148,11 +196,17 @@ export default function Notes({ navigation, route }: NotesScreenProps) {
         )}
         <View style={styles.titleDivider}></View>
         <TextInput
-          style={styles.notes}
+          style={
+            capturingScreenShot // enlarging font size of notes, so that user can see the contents clearly in the screenshot
+              ? [styles.notes, { fontSize: 24 }]
+              : styles.notes
+          }
           multiline
           value={notes}
           onChangeText={onNotesChange}
           placeholder="Notes"
+          caretHidden={capturingScreenShot} // not showing cursor in the screenshot
+          underlineColorAndroid="transparent"
         />
       </View>
     </ViewShot>

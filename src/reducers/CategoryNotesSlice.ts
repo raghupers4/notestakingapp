@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { CategoryNotesDetails } from "../constants/types";
+import { Category, CategoryNotesDetails } from "../constants/types";
 type CategoryNotesState = {
   notes: CategoryNotesDetails[];
 };
@@ -22,9 +22,42 @@ const categoryNotesSlice = createSlice({
         notes.notesImageUri = action.payload.notesImageUri;
       }
     },
+    deleteNotes: (state, action: PayloadAction<string[]>) => {
+      // action.payload will have selected notes ids (Array of strings)
+      state.notes = state.notes.filter(
+        (notes) =>
+          notes.id !==
+          action.payload.find((selectedNotesId) => selectedNotesId === notes.id)
+      );
+    },
+    // when notes is moved to another category
+    moveToAnotherCategory: (
+      state,
+      action: PayloadAction<{
+        selectedNotesIds: string[];
+        selectedCategory: Category;
+      }>
+    ) => {
+      if (action.payload.selectedNotesIds.length > 0) {
+        const { selectedNotesIds, selectedCategory } = action.payload;
+        const selectedNotes = state.notes.filter(
+          (notes) => notes.id === selectedNotesIds.find((n) => n === notes.id)
+        );
+        if (selectedNotes.length > 0) {
+          selectedNotes.forEach(
+            (notes) => (notes.categoryId = selectedCategory.id)
+          );
+        }
+      }
+    },
   },
 });
 
-export const { addNotesToList, updateNotes } = categoryNotesSlice.actions;
+export const {
+  addNotesToList,
+  updateNotes,
+  deleteNotes,
+  moveToAnotherCategory,
+} = categoryNotesSlice.actions;
 
 export default categoryNotesSlice.reducer;
