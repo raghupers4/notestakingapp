@@ -1,17 +1,11 @@
 import React from "react";
 import CategoryLabel from "../components/CategoryLabel";
 import { ImageBackground, Pressable, View, StyleSheet } from "react-native";
-import { HomeScreenProps, NotesCategory } from "../constants/types";
-
-const Categories = [
-  { id: 1, name: "Personal", ribbonColor: "#3a86ff" },
-  { id: 2, name: "Work", ribbonColor: "#eb5e28" },
-  { id: 3, name: "Goals", ribbonColor: "#bc4749" },
-  { id: 4, name: "Ideas", ribbonColor: "#ffc300" },
-];
+import { HomeScreenProps, Category } from "../constants/types";
+import { Categories } from "../constants/constants";
 
 const HomeScreen = ({ navigation }: HomeScreenProps) => {
-  const onCategoryLabelPress = (category: NotesCategory) => {
+  const onCategoryLabelPress = (category: Category) => {
     navigation.navigate("CategoryNotes", {
       ...category,
     });
