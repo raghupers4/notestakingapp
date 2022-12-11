@@ -8,13 +8,15 @@ import {
   BackHandler,
   Pressable,
 } from "react-native";
-import { NotesScreenProps } from "../constants/types";
+import { footerBtns, NotesScreenProps } from "../constants/types";
 import { AntDesign, FontAwesome } from "@expo/vector-icons";
 import ViewShot, { captureRef } from "react-native-view-shot";
 import { HeaderBackButton } from "@react-navigation/elements";
 import { useDispatch, useSelector } from "react-redux";
-import { addNotesToList, updateNotes } from "../reducers/CategoryNotesSlice";
 import { nanoid } from "nanoid";
+import { addNotesToList, updateNotes } from "../reducers/CategoryNotesSlice";
+import ModalDialog from "../components/ModalDialog";
+import Reminder from "../components/Reminder";
 // Screen where users can add or edit the notes by providing title and notes
 export default function Notes({ navigation, route }: NotesScreenProps) {
   const [title, setTitle] = useState<string>("");
@@ -25,6 +27,7 @@ export default function Notes({ navigation, route }: NotesScreenProps) {
   const [capturingScreenShot, setCapturingScreenShot] =
     useState<boolean>(false);
   const [contentsNotChanged, setContentsNotChanged] = useState<boolean>(false);
+  const [showReminderModal, setShowReminderModal] = useState<boolean>(false);
   const titleRef = useRef<TextInput>(null);
   const viewShotRef = useRef<ViewShot>(null);
   const viewRef = useRef<View>(null);
@@ -54,7 +57,12 @@ export default function Notes({ navigation, route }: NotesScreenProps) {
               />
             </View>
             <View style={styles.bellIcon}>
-              <FontAwesome name="bell" color="black" size={24} />
+              <FontAwesome
+                name="bell"
+                color="black"
+                size={24}
+                onPress={handleReminderIconPress}
+              />
             </View>
           </View>
         );
@@ -120,6 +128,25 @@ export default function Notes({ navigation, route }: NotesScreenProps) {
 
   const handlePinPress = () => {
     setIsPinned((isPin) => !isPin);
+  };
+
+  const handleReminderIconPress = () => {
+    setShowReminderModal((showReminder) => !showReminder);
+  };
+
+  const saveReminder = () => {};
+
+  const cancelReminder = () => {};
+
+  const reminderFooterBtns: footerBtns = {
+    positiveBtn: {
+      text: "Save",
+      handler: saveReminder,
+    },
+    negativeBtn: {
+      text: "Cancel",
+      handler: cancelReminder,
+    },
   };
 
   // captures the screenshot on header back button click or hardward back button (for Android)
@@ -209,6 +236,14 @@ export default function Notes({ navigation, route }: NotesScreenProps) {
           underlineColorAndroid="transparent"
         />
       </View>
+      {showReminderModal && (
+        <ModalDialog
+          modalVisible={showReminderModal}
+          footerBtns={reminderFooterBtns}
+        >
+          <Reminder />
+        </ModalDialog>
+      )}
     </ViewShot>
   );
 }

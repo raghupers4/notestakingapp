@@ -44,6 +44,17 @@ type MoveToCategoryProps = {
   onCategorySelectedHandler: (category: Category) => void;
 };
 
+type DropDownItem = {
+  displayLabel: string;
+  displayLabelValue: any;
+};
+
+type CustomDropDownProps = {
+  data: DropDownItem[];
+  selectedValue: any;
+  onDropDownValueChanged: (selectedValue: any, selectedIndex: number) => void;
+};
+
 type RootStackParamList = {
   Home: undefined;
   CategoryNotes: Category;
@@ -69,4 +80,6 @@ export {
   ModalDialogProps,
   MoveToCategoryProps,
   footerBtns,
+  DropDownItem,
+  CustomDropDownProps,
 };
